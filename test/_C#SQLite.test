@@ -1,0 +1,75 @@
+#
+#    May you do good and not evil.
+#    May you find forgiveness for yourself and forgive others.
+#    May you share freely, never taking more than you give.
+#
+#***********************************************************************
+# This file runs all C#SQLite tests.
+#
+#########################################################################################
+# $Header$
+#########################################################################################
+source $testdir/permutations.test
+
+set excludeList { ^* _* *.c *.tcl
+  all.test        async.test         quick.test  veryquick.test
+  memleak.test    permutations.test  soak.test   fts3.test
+  mallocAll.test  rtree.test }
+
+######################################
+#Exclude Configuration Tests
+######################################
+append excludeList { dbstatus.test init.test pcache2.test tkt2565.test}
+
+######################################
+#Exclude Multiclient & pipe tests
+######################################
+append excludeList { exists.test pager1.test schema3.test tkt-5d863f876e.test tkt-fc62af4523.test tkt4018.test}
+
+######################################
+#Exclude Mutex tests
+######################################
+append excludeList { mutex1.test mutex2.test }
+
+######################################
+#Exclude Shared Cache
+######################################
+append excludeList { tkt-f7b4edec.test }
+
+######################################
+#Exclude for not Unix
+######################################
+append excludeList { crash.test crash2.test }
+
+######################################
+#Exclude for VFS tests
+######################################
+append excludeList { incrblob3.test journal2.test pager2.test quota.test tkt-9d68c883.test tkt-f3e5abed55.test e_uri.test uri.test}
+
+######################################
+#Exclude for now TODO
+######################################
+append excludeList { analyze7.test e_select2.test savepoint6.test speed*.test}
+
+if { $TESTSUITE == "ALL" } { 
+set csTests [test_set $alltests -exclude $excludeList] 
+} else { 
+set csTests [test_set $allquicktests -exclude $excludeList]  
+}
+
+test_suite "C#SQLitetests" -prefix "" -description {
+  Quick test suite for C#-SQLite. Runs in around 7 minutes on a workstation.
+} -files [ 
+  test_set $csTests
+]
+
+test_suite "C#SQLiteErrors" -prefix "" -description {
+  Run just the Errors
+} -files [list { 
+diskfull.test
+}]
+
+test_suite "C#SQLiteFilterTests" -prefix "" -description {
+  Run all the tests, following a pattern of filenames
+}  -files [test_set [glob -nocomplain $::testdir/$filter*] -exclude $excludeList]
+
