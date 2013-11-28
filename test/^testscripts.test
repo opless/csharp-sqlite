@@ -1,0 +1,92 @@
+#########################################################################################
+# This file drives the testharness
+#
+#########################################################################################
+set testdir [file dirname $argv0]
+source $testdir/tester.tcl
+
+do_test SIMPLE_SQLITE_VERSION {
+    execsql { 
+    SELECT SQLITE_VERSION(), SQLITE_SOURCE_ID();
+  }
+} {3.7.7(C#) {Ported to C# from 2011-06-23 19:49:22 4374b7e83ea0a3fbc3691f9c0c936272862f32f2}}
+
+
+##########################################################################################
+#puts -nonewline "Press RETURN to exit..."; gets stdin; exit 0
+
+set filter ""
+
+if [info exists argv] { 
+  set TESTSUITE $argv
+  puts "Running tests ($argv)"
+} else { 
+  set TESTSUITE "QUICK" 
+  puts "running allquicktests"
+}
+if [string compare $filter "skip"] {
+if ![string compare $filter ""] {puts -nonewline "Enter test name prefix:"; set filter [gets stdin]}
+source $testdir/_C#SQLite.test
+}
+
+set tm1 [clock seconds] 
+if ![string compare $filter ""] { 
+ set rc [run_test_suite C#SQLitetests] 
+} else { 
+ set rc [run_test_suite C#SQLiteFilterTests] 
+}
+set tm2 [clock seconds]
+
+set minutes [expr {($tm2-$tm1)/60}]
+set seconds [expr {($tm2-$tm1)%60}]
+puts [format "\nTests ran in  (%d:%.2d) " $minutes $seconds]
+finish_test
+##########################################################################################
+
+
+
+##########################################################################################
+#
+# Sample TCL command sequences
+#
+##########################################################################################
+
+do_test SIMPLE_SQLITE_VERSION {
+    execsql { 
+    SELECT SQLITE_VERSION(), SQLITE_SOURCE_ID();
+  }
+} {3.7.7(C#) {Ported to C# from 2011-06-23 19:49:22 4374b7e83ea0a3fbc3691f9c0c936272862f32f2}}
+
+
+do_test SIMPLE_COUNT_SQL_MASTER {
+    execsql { 
+    SELECT COUNT() FROM SQLITE_MASTER;
+  }
+} {0}
+do_test SIMPLE_CREATE_TABLE {
+    execsql { 
+    CREATE TABLE T1 (C1);
+  }
+} {}
+
+do_test SIMPLE_SELECT_ALL {
+    execsql { 
+    SELECT * FROM SQLITE_MASTER;
+  }
+} {table T1 T1 2 {CREATE TABLE T1 (C1)}}
+
+
+
+##########################################################################################
+#
+# TCL Test suites
+#
+# help will display the test suites and descriptions
+# the supported test suites are listed below
+##########################################################################################
+#
+#  Test suite: "C#SQLitetests"
+#    Quick test suite for C#-SQLite. Runs in around 7 minutes on a workstation.
+#
+# test_list C#SQLitetests will display the individual file names
+##########################################################################################
